@@ -1,4 +1,43 @@
 import heapq
+import psycopg2
+from config import DB_CONFIG
+
+def execute_sql_query(query):
+    conn = None
+    cursor = None
+
+    try:
+        # Verbindung herstellen
+        conn = psycopg2.connect(**DB_CONFIG)
+
+        # Optional: Cursor erstellen
+        cursor = conn.cursor()
+
+        # SQL-Abfrage ausführen
+        cursor.execute(query)
+
+        # Ergebnisse abrufen
+        result = cursor.fetchall()
+
+        return result
+
+    except (Exception, psycopg2.Error) as error:
+        return None
+
+    finally:
+        # Cursor und Verbindung schließen
+        try:
+            if cursor:
+                cursor.close()
+        except psycopg2.Error as e:
+            print("Fehler beim Schließen des Cursors:", e)
+
+        try:
+            if conn:
+                conn.close()
+        except psycopg2.Error as e:
+            print("Fehler beim Schließen der Verbindung:", e)
+
 
 # Funktion zur Berechnung der Manhattan-Distanz zwischen zwei Punkten
 def manhattan_distance(point1, point2):
@@ -48,22 +87,77 @@ def find_shortest_path(start, target, grid):
 
     return None  # Es konnte kein Weg gefunden werden
 
+#Auslesen des Rasters aus der DB
+query = "SELECT x, y FROM \"map\".chunks ORDER BY X, y ASC;"
+response  = execute_sql_query(query)
+response_array = []
+for entry in response:
+    response_array.append(list(entry))
+    
+ChunksRange = response_array[(len(response_array) - 1)]
+
 # Definition des Rasters und der Begehbarkeit der Felder
-walkable_fields = {(x, y): True for x in range(8) for y in range(10)}
-walkable_fields[(2, 2)] = False
-walkable_fields[(3, 2)] = False
-walkable_fields[(2, 3)] = False
-walkable_fields[(3, 3)] = False
+walkable_fields = {(x, y): True for x in range(ChunksRange[0]) for y in range(ChunksRange[1])}
+
+#Felder welche nicht begehbar sind aus detenbank auslesen
+query = "SELECT x, y FROM \"map\".chunks WHERE json_array_length(borders_on) = 0;"
+response  = execute_sql_query(query)
+response_array = []
+for entry in response:
+    response_array.append(list(entry))
+
+for chunk in response_array:
+    walkable_fields[tuple(chunk)] = False
+
 
 # Definition der Grenzen zwischen den Feldern
-boundaries = [((1, 6), (1, 5)), ((1, 6), (2, 6)), ((1, 6), (2, 7)), ((0, 5), (0, 6))]
+query = "SELECT x, y, borders_on, id FROM \"map\".chunks WHERE json_array_length(borders_on) > 0;"
+response  = execute_sql_query(query)
+response_array = []
+for entry in response:
+    response_array.append(list(entry))
+
+for entry in response_array:
+    neighbors = []
+
+    # Nachbarfelder hinzufügen, wobei Koordinaten die nicht existieren ignoriert werden
+    if entry[0] - 1 >= 0 and entry[0] - 1 <= ChunksRange[0]:
+        neighbors.append((entry[0] - 1, entry[1]))  # Links
+    if entry[0] + 1 >= 0 and entry[0] + 1 <= ChunksRange[0]:
+        neighbors.append((entry[0] + 1, entry[1]))  # Rechts
+    if entry[1] - 1 >= 0 and entry[0] - 1 <= ChunksRange[1]:
+        neighbors.append((entry[0], entry[1] - 1))  # Oben
+    if entry[1] + 1 >= 0 and entry[0] + 1 <= ChunksRange[1]:
+        neighbors.append((entry[0], entry[1] + 1))  # Unten
+    
+    neighborIDS = []
+    for chunk in neighbors:
+        query = "SELECT id FROM \"map\".chunks WHERE x = {} AND y = {};".format(chunk[0], chunk[1])
+        response  = execute_sql_query(query)
+        for IDentry in response:
+            neighborIDS.append(list(IDentry))
+    
+
+    for border in entry[2]:
+        if border in neighborIDS:
+            print("true")
+        else: print("false")
+        print("-------------------")
+
+
+
+
+
+print(response_array[1])
+
+boundaries = [((2, 2), (2, 3))]
 
 # Definition der Liste grid unter Berücksichtigung der Begehbarkeit der Felder
 grid = [(x, y) for x in range(10) for y in range(10) if walkable_fields.get((x, y), False)]
 
 # Beispielanwendung des A*-Algorithmus
 start = (1, 6)
-target = (6, 5)
+target = (3, 2)
 
 path = find_shortest_path(start, target, grid)
 if path:
