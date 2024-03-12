@@ -38,6 +38,18 @@ def execute_sql_query(query):
         except psycopg2.Error as e:
             print("Fehler beim Schließen der Verbindung:", e)
 
+#dupplikate aus einer Liste entfernen
+def remove_duplicates(arr):
+    unique_pairs = set()
+    result = []
+    
+    for pair in arr:
+        pair = tuple(sorted(pair))  # Sortiere die Koordinaten, um die Reihenfolge zu normalisieren
+        if pair not in unique_pairs:
+            unique_pairs.add(pair)
+            result.append(pair)
+    
+    return result
 
 # Funktion zur Berechnung der Manhattan-Distanz zwischen zwei Punkten
 def manhattan_distance(point1, point2):
@@ -111,6 +123,7 @@ for chunk in response_array:
 
 
 # Definition der Grenzen zwischen den Feldern
+boundaries = []
 query = "SELECT x, y, borders_on, id FROM \"map\".chunks WHERE json_array_length(borders_on) > 0;"
 response  = execute_sql_query(query)
 response_array = []
@@ -138,26 +151,32 @@ for entry in response_array:
             neighborIDS.append(list(IDentry))
     
 
-    for border in entry[2]:
-        if border in neighborIDS:
-            print("true")
-        else: print("false")
-        print("-------------------")
+    # Flach machen der verschachtelten Liste neighborIDS
+    flattened_neighborIDS = [item for sublist in neighborIDS for item in sublist]
+    border_int = [int(x) for x in entry[2]]
 
+    for neighbor in flattened_neighborIDS:
+        if neighbor not in border_int:
+            query = "SELECT x, y FROM \"map\".chunks WHERE id = {};".format(neighbor)
+            response = execute_sql_query(query)
+            # Stellen Sie sicher, dass response eine Liste enthält, bevor Sie sie mit anderen Listen verknüpfen
+            if response:
+                # Extrahieren Sie die Koordinaten aus der Datenbankabfrage
+                coordinates_from_response = (response[0][0], response[0][1])
+                # Koordinaten aus entry[0] und entry[1]
+                coordinates_from_entry = (entry[0], entry[1])
+                # Fügen Sie die Koordinaten in das gewünschte Format hinzu
+                boundaries.append((coordinates_from_entry, coordinates_from_response))  
 
-
-
-
-print(response_array[1])
-
-boundaries = [((2, 2), (2, 3))]
+#Liste aufräumen und alle Duplikate enfernen
+boundaries = remove_duplicates(boundaries)
 
 # Definition der Liste grid unter Berücksichtigung der Begehbarkeit der Felder
 grid = [(x, y) for x in range(10) for y in range(10) if walkable_fields.get((x, y), False)]
 
 # Beispielanwendung des A*-Algorithmus
-start = (1, 6)
-target = (3, 2)
+start = (3, 6)
+target = (6, 5)
 
 path = find_shortest_path(start, target, grid)
 if path:
