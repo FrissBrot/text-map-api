@@ -1,5 +1,4 @@
 from functions import remove_duplicates
-import heapq
 from dbconnection import execute_sql_query
 
 def initialization():
