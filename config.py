@@ -3,6 +3,8 @@
 DB_CONFIG = {
     'host': 'localhost',
     'database': 'EuropaparkPlanerMap',
-    'user': 'sqlservice.europaparkmap',
-    'password': 'rpch!R%35zfzvU'
+    #'user': 'sqlservice.europaparkmap',
+    #'password': 'rpch!R%35zfzvU'
+    'user': 'postgres',
+    'password': 'db123'
 }

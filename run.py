@@ -1,6 +1,6 @@
 import heapq
 from flask import Flask, request, jsonify
-from datainitialization import initialization
+from datainitialization import get_map
 from functions import manhattan_distance
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ def api():
         start = tuple(data['start']) 
         target = tuple(data['target'])
 
-        walkable_fields, boundaries, Xrange, Yrange = initialization()
+        walkable_fields, boundaries, rangefromdb = get_map()
 
         # Funktion zum Auffinden des kürzesten Pfads zwischen zwei Punkten auf einem Raster
         def find_shortest_path(start, target, grid):
@@ -63,7 +63,7 @@ def api():
             return None  # Es konnte kein Weg gefunden werden
 
         # Definition der Liste grid unter Berücksichtigung der Begehbarkeit der Felder
-        grid = [(x, y) for x in range(Xrange) for y in range(Yrange) if walkable_fields.get((x, y), False)]
+        grid = [(x, y) for x in range(rangefromdb[0] + 1) for y in range(rangefromdb[1] + 1) if walkable_fields.get((x, y), False)]
 
         # Aufruf des A*-Algorithmus
         path = find_shortest_path(start, target, grid)

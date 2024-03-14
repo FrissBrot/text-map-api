@@ -1,7 +1,18 @@
-from functions import remove_duplicates
+from functions import remove_duplicates, save_data, clear_file, load_data, hash
 from dbconnection import execute_sql_query
 
+filename = 'data.pickle'
+
+def get_db_hash():
+    #Auslesen der Updates aus der Datenbank
+    query = "SELECT relname, n_tup_ins as inserts, n_tup_upd as updates, n_tup_del as deletes FROM pg_stat_all_tables WHERE relname = 'chunks';"
+    response  = execute_sql_query(query)
+
+    hash_id = hash(response)
+    return hash_id
+
 def initialization():
+    print("start datainitialization ...")
     #Auslesen des Rasters aus der DB
     query = "SELECT x, y FROM \"map\".chunks ORDER BY X, y ASC;"
     response  = execute_sql_query(query)
@@ -12,7 +23,10 @@ def initialization():
     ChunksRange = response_array[(len(response_array) - 1)]
 
     # Definition des Rasters und der Begehbarkeit der Felder
-    walkable_fields = {(x, y): True for x in range(ChunksRange[0]) for y in range(ChunksRange[1])}
+    walkable_fields = {(x, y): True for x in range(ChunksRange[0] + 1) for y in range(ChunksRange[1] + 1)}
+
+    print(walkable_fields)
+    print(ChunksRange)
 
     #Felder welche nicht begehbar sind aus detenbank auslesen
     query = "SELECT x, y FROM \"map\".chunks WHERE json_array_length(borders_on) = 0;"
@@ -37,14 +51,16 @@ def initialization():
         neighbors = []
 
         # Nachbarfelder hinzufügen, wobei Koordinaten die nicht existieren ignoriert werden
-        if entry[0] - 1 >= 0 and entry[0] - 1 <= ChunksRange[0]:
-            neighbors.append((entry[0] - 1, entry[1]))  # Links
-        if entry[0] + 1 >= 0 and entry[0] + 1 <= ChunksRange[0]:
+        if entry[0] + 1 <= ChunksRange[0]:
             neighbors.append((entry[0] + 1, entry[1]))  # Rechts
-        if entry[1] - 1 >= 0 and entry[0] - 1 <= ChunksRange[1]:
-            neighbors.append((entry[0], entry[1] - 1))  # Oben
-        if entry[1] + 1 >= 0 and entry[0] + 1 <= ChunksRange[1]:
-            neighbors.append((entry[0], entry[1] + 1))  # Unten
+        if entry[0] - 1 >= 0:
+            neighbors.append((entry[0] - 1, entry[1]))  # Links
+        if entry[1] + 1 <= ChunksRange[1]:
+            neighbors.append((entry[0], entry[1] + 1))  # Oben
+        if entry[1] - 1 >= 0:
+            neighbors.append((entry[0], entry[1] - 1))  # Links
+
+        print(entry[0], entry[1], neighbors)
         
         neighborIDS = []
         for chunk in neighbors:
@@ -73,4 +89,31 @@ def initialization():
 
     #Liste aufräumen und alle Duplikate enfernen
     boundaries = remove_duplicates(boundaries)
-    return walkable_fields, boundaries, ChunksRange[0], ChunksRange[1]
+
+    print(boundaries)
+
+    #Daten in cache speichern
+    hash_id = get_db_hash()
+
+    data_to_save = hash_id, walkable_fields, boundaries, ChunksRange
+
+    clear_file(filename)
+    save_data(data_to_save, filename)
+    return walkable_fields, boundaries, ChunksRange
+
+def check_cache():
+    loaded_data = load_data(filename)
+    hashid_cache = loaded_data[0]
+    hashid_db = get_db_hash()
+    if hashid_cache == hashid_db: return True
+    else: return False
+
+def get_map():
+    if check_cache():
+        loaded_data = load_data(filename)
+        walkable_fields = loaded_data[1]
+        boundaries = loaded_data[2]
+        ChunksRange = loaded_data[3]
+        return walkable_fields, boundaries, ChunksRange
+    
+    else: return initialization()
