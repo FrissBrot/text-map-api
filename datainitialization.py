@@ -5,7 +5,7 @@ filename = 'data.pickle'
 
 def get_db_hash():
     #Auslesen der Updates aus der Datenbank
-    query = "SELECT relname, n_tup_ins as inserts, n_tup_upd as updates, n_tup_del as deletes FROM pg_stat_all_tables WHERE relname = 'chunks';"
+    query = "SELECT relname, n_tup_ins as inserts, n_tup_upd as updates, n_tup_del as deletes FROM pg_stat_all_tables WHERE relname = 'chunk';"
     response  = execute_sql_query(query)
 
     hash_id = hash(response)
@@ -14,7 +14,7 @@ def get_db_hash():
 def initialization():
     print("start datainitialization ...")
     #Auslesen des Rasters aus der DB
-    query = "SELECT x, y FROM \"map\".chunks ORDER BY X, y ASC;"
+    query = "SELECT x, y FROM \"public\".chunk ORDER BY X, y ASC;"
     response  = execute_sql_query(query)
     response_array = []
     for entry in response:
@@ -25,11 +25,8 @@ def initialization():
     # Definition des Rasters und der Begehbarkeit der Felder
     walkable_fields = {(x, y): True for x in range(ChunksRange[0] + 1) for y in range(ChunksRange[1] + 1)}
 
-    print(walkable_fields)
-    print(ChunksRange)
-
     #Felder welche nicht begehbar sind aus detenbank auslesen
-    query = "SELECT x, y FROM \"map\".chunks WHERE json_array_length(borders_on) = 0;"
+    query = "SELECT x, y FROM \"public\".chunk WHERE jsonb_array_length(border_on) = 0;"
     response  = execute_sql_query(query)
     response_array = []
     for entry in response:
@@ -41,7 +38,7 @@ def initialization():
 
     # Definition der Grenzen zwischen den Feldern
     boundaries = []
-    query = "SELECT x, y, borders_on, id FROM \"map\".chunks WHERE json_array_length(borders_on) > 0;"
+    query = "SELECT x, y, border_on, id FROM \"public\".chunk WHERE jsonb_array_length(border_on) > 0;"
     response  = execute_sql_query(query)
     response_array = []
     for entry in response:
@@ -60,11 +57,9 @@ def initialization():
         if entry[1] - 1 >= 0:
             neighbors.append((entry[0], entry[1] - 1))  # Links
 
-        print(entry[0], entry[1], neighbors)
-        
         neighborIDS = []
         for chunk in neighbors:
-            query = "SELECT id FROM \"map\".chunks WHERE x = {} AND y = {};".format(chunk[0], chunk[1])
+            query = "SELECT id FROM \"public\".chunk WHERE x = {} AND y = {};".format(chunk[0], chunk[1])
             response  = execute_sql_query(query)
             for IDentry in response:
                 neighborIDS.append(list(IDentry))
@@ -76,7 +71,7 @@ def initialization():
 
         for neighbor in flattened_neighborIDS:
             if neighbor not in border_int:
-                query = "SELECT x, y FROM \"map\".chunks WHERE id = {};".format(neighbor)
+                query = "SELECT x, y FROM \"public\".chunk WHERE id = {};".format(neighbor)
                 response = execute_sql_query(query)
                 # Stellen Sie sicher, dass response eine Liste enthält, bevor Sie sie mit anderen Listen verknüpfen
                 if response:
@@ -89,8 +84,6 @@ def initialization():
 
     #Liste aufräumen und alle Duplikate enfernen
     boundaries = remove_duplicates(boundaries)
-
-    print(boundaries)
 
     #Daten in cache speichern
     hash_id = get_db_hash()
