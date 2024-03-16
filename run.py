@@ -2,6 +2,7 @@ import heapq
 from flask import Flask, request, jsonify
 from datainitialization import get_map
 from functions import manhattan_distance
+from dbfunctions import db_save_path
 
 app = Flask(__name__)
 
@@ -53,7 +54,7 @@ def api():
                                 (current[0], current[1] + 1), (current[0], current[1] - 1)]:
                     if neighbor in grid and is_walkable(neighbor) and neighbor not in closed_set:
                         if not has_boundary(current, neighbor):  # Überprüfung, ob es eine Grenze zwischen current und neighbor gibt
-                            tentative_g = g_values[current] + 1  # Kosten von aktuellen Knoten zu Nachbarn
+                            tentative_g = g_values[current] + 1 # Kosten von aktuellen Knoten zu Nachbarn
                             if tentative_g < g_values.get(neighbor, float('inf')):
                                 came_from[neighbor] = current
                                 g_values[neighbor] = tentative_g
@@ -69,6 +70,7 @@ def api():
         path = find_shortest_path(start, target, grid)
         if path:
             print("Kürzester Pfad gefunden:", path)
+            db_save_path(start, target, path)
         else:
             print("Kein Pfad gefunden.")
 
