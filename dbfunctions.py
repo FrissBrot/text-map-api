@@ -14,6 +14,17 @@ def get_chunk_id(x, y):
     id = int(response[0][0])
     return id
 
+def get_coordinate_from_id(id):
+    query = "SELECT x, y FROM public.\"chunk\" WHERE id = {};".format(id)
+    response  = execute_sql_query(query)
+    if response:
+        return tuple(response)[0]
+    return False
+
+def db_clear_table(name):
+    query = "DELETE FROM public.\"{}\";".format(name)
+    execute_sql_insert(query)
+
 def db_get_shortest_path(start, target):
     start_id = get_chunk_id(start[0], start[1])
     target_id = get_chunk_id(target[0], target[1])

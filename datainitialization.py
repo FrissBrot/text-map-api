@@ -1,4 +1,5 @@
 from functions import remove_duplicates, save_data, clear_file, load_data, hash
+from dbfunctions import db_clear_table
 from dbconnection import execute_sql_query
 import os
 
@@ -86,6 +87,8 @@ def initialization():
     #Liste aufräumen und alle Duplikate enfernen
     boundaries = remove_duplicates(boundaries)
 
+    #SQL Cache Tabelle leeren
+    db_clear_table("savedRoute")
     #Daten in cache speichern
     hash_id = get_db_hash()
 

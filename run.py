@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from datainitialization import get_map
 from functions import get_shortest_path
+from dbfunctions import get_coordinate_from_id
 
 app = Flask(__name__)
 
@@ -12,8 +13,11 @@ def api():
     # Überprüfen, ob die erforderlichen Felder vorhanden sind
     if 'start' in data and 'target' in data:
 
-        start = tuple(data['start']) 
-        target = tuple(data['target'])
+        start = get_coordinate_from_id(int(data['start']))
+        target = get_coordinate_from_id(int(data['target']))
+
+        if start == False:
+            return jsonify({'result': None})
 
         walkable_fields, boundaries, rangefromdb = get_map()
 
