@@ -1,5 +1,6 @@
 from functions import remove_duplicates, save_data, clear_file, load_data, hash
 from dbconnection import execute_sql_query
+import os
 
 filename = 'data.pickle'
 
@@ -90,15 +91,18 @@ def initialization():
 
     data_to_save = hash_id, walkable_fields, boundaries, ChunksRange
 
-    clear_file(filename)
+    if os.path.exists(filename):
+        clear_file(filename)
     save_data(data_to_save, filename)
     return walkable_fields, boundaries, ChunksRange
 
 def check_cache():
-    loaded_data = load_data(filename)
-    hashid_cache = loaded_data[0]
-    hashid_db = get_db_hash()
-    if hashid_cache == hashid_db: return True
+    if os.path.exists(filename):
+        loaded_data = load_data(filename)
+        hashid_cache = loaded_data[0]
+        hashid_db = get_db_hash()
+        if hashid_cache == hashid_db: return True
+        else: return False
     else: return False
 
 def get_map():
