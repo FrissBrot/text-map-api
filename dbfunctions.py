@@ -41,3 +41,11 @@ def db_get_shortest_path(start, target):
         if response:
             route = response[0][0]
             return route[::-1]
+        
+def db_get_costs(id):
+    query = "SELECT cost FROM public.\"chunk\" WHERE id = {};".format(id)
+    response  = execute_sql_query(query)
+    if response[0][0]:
+        print(response[0][0])
+        return response[0][0]
+    else: return False

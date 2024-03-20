@@ -1,5 +1,5 @@
 from functions import remove_duplicates, save_data, clear_file, load_data, hash
-from dbfunctions import db_clear_table
+from dbfunctions import db_clear_table, db_get_costs, get_chunk_id
 from dbconnection import execute_sql_query
 import os
 
@@ -25,17 +25,17 @@ def initialization():
     ChunksRange = response_array[(len(response_array) - 1)]
 
     # Definition des Rasters und der Begehbarkeit der Felder
-    walkable_fields = {(x, y): True for x in range(ChunksRange[0] + 1) for y in range(ChunksRange[1] + 1)}
+    walkable_fields = {(x, y): db_get_costs(get_chunk_id(x, y)) for x in range(ChunksRange[0] + 1) for y in range(ChunksRange[1] + 1)}
 
     #Felder welche nicht begehbar sind aus detenbank auslesen
-    query = "SELECT x, y FROM \"public\".chunk WHERE jsonb_array_length(border_on) = 0;"
-    response  = execute_sql_query(query)
-    response_array = []
-    for entry in response:
-        response_array.append(list(entry))
+    #query = "SELECT x, y FROM \"public\".chunk WHERE jsonb_array_length(border_on) = 0;"
+    #response  = execute_sql_query(query)
+    #response_array = []
+    #for entry in response:
+    #    response_array.append(list(entry))
 
-    for chunk in response_array:
-        walkable_fields[tuple(chunk)] = False
+    #for chunk in response_array:
+    #    walkable_fields[tuple(chunk)] = False
 
 
     # Definition der Grenzen zwischen den Feldern
@@ -87,6 +87,7 @@ def initialization():
     #Liste aufräumen und alle Duplikate enfernen
     boundaries = remove_duplicates(boundaries)
 
+    print(walkable_fields)
     #SQL Cache Tabelle leeren
     db_clear_table("savedRoute")
     #Daten in cache speichern

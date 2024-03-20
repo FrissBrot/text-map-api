@@ -58,24 +58,20 @@ def get_shortest_path(start, target, grid, walkable_fields, boundaries):
         return path
 
 # Funktion zum Auffinden des kürzesten Pfads zwischen zwei Punkten auf einem Raster
-def calculate_shortest_path(start, target, grid, walkable_fields, boundaries) :
-    # Funktion zur Überprüfung der Begehbarkeit eines Feldes
+def calculate_shortest_path(start, target, grid, walkable_fields, boundaries):
     def is_walkable(coord):
         return walkable_fields.get(coord, False)
 
-    # Funktion zur Überprüfung, ob eine Grenze zwischen zwei Feldern existiert
     def has_boundary(coord1, coord2):
         return (coord1, coord2) in boundaries or (coord2, coord1) in boundaries
 
-    # Initialisierung der offenen Liste und der geschlossenen Liste
-    open_list = [(0, start)]  # Prioritätswarteschlange, die die Knoten basierend auf ihrem f-Wert enthält
-    closed_set = set()  # Menge, die die bereits untersuchten Knoten enthält
-    came_from = {}  # Dictionary zur Nachverfolgung des Weges
-    g_values = {start: 0}  # Dictionary zur Verfolgung der g-Werte
+    open_list = [(0, start)]
+    closed_set = set()
+    came_from = {}
+    g_values = {start: 0}
 
-    # A*-Algorithmus
     while open_list:
-        _, current = heapq.heappop(open_list)  # Entferne den Knoten mit dem niedrigsten f-Wert aus der Warteschlange
+        _, current = heapq.heappop(open_list)
 
         if current == target:
             path = []
@@ -84,20 +80,19 @@ def calculate_shortest_path(start, target, grid, walkable_fields, boundaries) :
                 current = came_from[current]
             path.append(start)
             path.reverse()
-            db_save_path(start, target, path)
             return path
 
         closed_set.add(current)
 
         for neighbor in [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
-                        (current[0], current[1] + 1), (current[0], current[1] - 1)]:
+                         (current[0], current[1] + 1), (current[0], current[1] - 1)]:
             if neighbor in grid and is_walkable(neighbor) and neighbor not in closed_set:
-                if not has_boundary(current, neighbor):  # Überprüfung, ob es eine Grenze zwischen current und neighbor gibt
-                    tentative_g = g_values[current] + 1 # Kosten von aktuellen Knoten zu Nachbarn
+                if not has_boundary(current, neighbor):
+                    tentative_g = g_values[current] + walkable_fields.get(neighbor, float('inf'))  # Berücksichtigung der individuellen Kosten
                     if tentative_g < g_values.get(neighbor, float('inf')):
                         came_from[neighbor] = current
                         g_values[neighbor] = tentative_g
                         f_value = tentative_g + manhattan_distance(neighbor, target)
                         heapq.heappush(open_list, (f_value, neighbor))
 
-    return None  # Es konnte kein Weg gefunden werden
+    return None
