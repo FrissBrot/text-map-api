@@ -15,5 +15,5 @@ jobs:
     - name: Bild erstellen und Image pushen
       run: |
         echo "${{ secrets.DOCKERPW }}" | docker login -u frissbrot --password-stdin
-        docker image build -t frissbrot/test:latest .
-        docker push frissbrot/test:latest
+        docker image build -t frissbrot/map-api:latest .
+        docker push frissbrot/map-api:latest
