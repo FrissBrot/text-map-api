@@ -75,12 +75,14 @@ def calculate_shortest_path(start, target, grid, walkable_fields, boundaries):
 
         if current == target:
             path = []
+            total_cost = 0  # Gesamtkosten des Weges
             while current in came_from:
                 path.append(current)
+                total_cost += walkable_fields.get(current, 0)  # Summe der Kosten
                 current = came_from[current]
             path.append(start)
             path.reverse()
-            return path
+            return path, total_cost
 
         closed_set.add(current)
 
@@ -88,11 +90,11 @@ def calculate_shortest_path(start, target, grid, walkable_fields, boundaries):
                          (current[0], current[1] + 1), (current[0], current[1] - 1)]:
             if neighbor in grid and is_walkable(neighbor) and neighbor not in closed_set:
                 if not has_boundary(current, neighbor):
-                    tentative_g = g_values[current] + walkable_fields.get(neighbor, float('inf'))  # Berücksichtigung der individuellen Kosten
+                    tentative_g = g_values[current] + walkable_fields.get(neighbor, float('inf'))
                     if tentative_g < g_values.get(neighbor, float('inf')):
                         came_from[neighbor] = current
                         g_values[neighbor] = tentative_g
                         f_value = tentative_g + manhattan_distance(neighbor, target)
                         heapq.heappush(open_list, (f_value, neighbor))
 
-    return None
+    return None, 0  # Es konnte kein Weg gefunden werden

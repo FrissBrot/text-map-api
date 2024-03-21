@@ -25,14 +25,14 @@ def api():
         grid = [(x, y) for x in range(rangefromdb[0] + 1) for y in range(rangefromdb[1] + 1) if walkable_fields.get((x, y), False)]
 
         # Aufruf des A*-Algorithmus
-        path = get_shortest_path(start, target, grid, walkable_fields, boundaries)
+        path, costs = get_shortest_path(start, target, grid, walkable_fields, boundaries)
         if path:
             print("Kürzester Pfad gefunden:", path)
         else:
             print("Kein Pfad gefunden.")
 
         # Das Ergebnis als JSON zurückgeben
-        return jsonify({'result': path})
+        return jsonify({'result': path}, {'costs': costs})
     else:
         # Fehlermeldung zurückgeben, wenn nicht alle erforderlichen Felder vorhanden sind
         return jsonify({'error': 'Not all required fields provided'}), 400

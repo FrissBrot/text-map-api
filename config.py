@@ -1,10 +1,9 @@
 # config.py
+import os
 
 DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'ep-planer',
-    #'user': 'sqlservice.europaparkmap',
-    #'password': 'rpch!R%35zfzvU'
-    'user': 'postgres',
-    'password': 'db123'
+    'host': os.environ.get('DB_HOST'),
+    'database': os.environ.get('DB_DATABASE'),
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD')
 }
