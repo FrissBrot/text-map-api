@@ -73,7 +73,6 @@ def execute_sql_insert(query):
         except psycopg2.Error as e:
             print("Fehler beim Schließen der Verbindung:", e)
 
-
 def test_connection(query):
     conn = None
     cursor = None
@@ -92,7 +91,8 @@ def test_connection(query):
         # Ergebnisse abrufen
         result = cursor.fetchall()
 
-        return result
+        if result:
+            return "Verbindung zur Datenbank erfolgreich hergestellt."
 
     except (Exception, psycopg2.Error) as error:
         print("Fehler beim Herstellen der Verbindung zur PostgreSQL-Datenbank:", error)
@@ -114,4 +114,25 @@ def test_connection(query):
         except psycopg2.Error as e:
             print("Fehler beim Schließen der Verbindung:", e)
 
-print(test_connection("SELECT * FROM \"public\".chunk;"))
+def table_exists(table_name):
+    conn = psycopg2.connect(**DB_CONFIG)
+    """
+    Überprüft, ob die angegebene Tabelle in der Datenbank existiert.
+    """
+    cursor = conn.cursor()
+    cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = %s)", (table_name,))
+    exists = cursor.fetchone()[0]
+    cursor.close()
+    return exists
+
+def execute_sql_script(sql_file):
+    conn = psycopg2.connect(**DB_CONFIG)
+    """
+    Führt ein SQL-Skript aus.
+    """
+    cursor = conn.cursor()
+    with open(sql_file, 'r') as file:
+        sql_script = file.read()
+        cursor.execute(sql_script)
+    conn.commit()
+    cursor.close()

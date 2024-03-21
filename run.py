@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from flask import Flask, request, jsonify
 from datainitialization import get_map
 from functions import get_shortest_path
