@@ -1,10 +1,12 @@
 # Map Text API
 
-This Dockerimage provides a API to calculate time and path of two points on a map.
-GitHub: https://github.com/FrissBrot/text-map-api
+This Docker image provides an API for calculating the time and path between two points on a map. 
 
-## Docker Compose example
-```
+DockerHub Repository: https://hub.docker.com/r/frissbrot/map-api
+
+## Docker Compose Example
+
+```yaml
 version: '3'
 
 services:
@@ -20,23 +22,32 @@ services:
       - DB_PASSWORD=*YOUR DB USER PASSWORD*
       - DB_DATABASE=*YOUR DATABASE NAME*
 ```
-## API Call
-A example API call.
-```
+
+## API Call Example
+
+Here's an example API call:
+
+```bash
 curl -X POST -H "Content-Type: application/json" -d '{"start": 16, "target": 1}' http://127.0.0.1:5000/api
 ```
-## SetUp Postgres database
-This Porject runs only on Postgres. You can use a dedicated database or integrate the database in your project. If not exeist, the setup will create the tables "chunk" and "savedRoute" and fill it with some example data. You can edit the data later.
 
-### Database diagram
-![drawSQL-image-export-2024-03-21 (1)](https://github.com/FrissBrot/text-map-api/assets/60073321/23037a58-5a5a-4c8b-b467-1f607bc2f7bf)
+## Setting Up the Postgres Database
 
-## example Data
-The Data for the following map is provided as example data in the "chunk" table.
-![Map-Test-Map-Costs-Test-Map-Costs drawio](https://github.com/FrissBrot/text-map-api/assets/60073321/f0405b33-e868-4ed2-8c89-afb2dd9739ea)
+This project exclusively runs on Postgres. You can either use a dedicated database or integrate the database into your project. If it doesn't exist, the setup will create the "chunk" and "savedRoute" tables and populate them with some example data, which you can later edit.
 
-## Docker Compose example with postres and pgAdmin
-```
+### Database Diagram
+
+![Database Diagram](https://github.com/FrissBrot/text-map-api/assets/60073321/23037a58-5a5a-4c8b-b467-1f607bc2f7bf)
+
+## Example Data
+
+The data for the map is provided as example data in the "chunk" table.
+
+![Map Example](https://github.com/FrissBrot/text-map-api/assets/60073321/f0405b33-e868-4ed2-8c89-afb2dd9739ea)
+
+## Docker Compose Example with Postgres and pgAdmin
+
+```yaml
 version: '3'
 
 services:
@@ -74,3 +85,5 @@ services:
 volumes:
   postgres_data:
 ```
+
+Feel free to let me know if you need further enhancements!
