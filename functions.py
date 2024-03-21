@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pickle
 import hashlib
 import os
@@ -24,7 +25,7 @@ def manhattan_distance(point1, point2):
 #save data with pickle
 def save_data(data, filename):
     with open(filename, 'wb') as f:
-        pickle.dump(data, f)
+        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Funktion zum Löschen des Dateiinhalts
 def clear_file(filename):

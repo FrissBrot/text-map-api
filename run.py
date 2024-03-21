@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify
 from datainitialization import get_map
 from functions import get_shortest_path
@@ -32,7 +34,9 @@ def api():
             print("Kein Pfad gefunden.")
 
         # Das Ergebnis als JSON zurückgeben
-        return jsonify({'result': path}, {'costs': costs})
+        costs_float = float(costs)
+
+        return jsonify({'result': path}, {'costs': costs_float})
     else:
         # Fehlermeldung zurückgeben, wenn nicht alle erforderlichen Felder vorhanden sind
         return jsonify({'error': 'Not all required fields provided'}), 400

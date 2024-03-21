@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dbconnection import execute_sql_query, execute_sql_insert
 import json
 

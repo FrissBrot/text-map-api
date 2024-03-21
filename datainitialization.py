@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from functions import remove_duplicates, save_data, clear_file, load_data, hash
 from dbfunctions import db_clear_table, db_get_costs, get_chunk_id
 from dbconnection import execute_sql_query

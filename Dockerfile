@@ -1,4 +1,4 @@
-FROM python:2.7-alpine
+FROM python:3.9.19-slim
 
 RUN mkdir /app
 WORKDIR /app
@@ -12,7 +12,5 @@ ENV DB_HOST=""
 ENV DB_DATABASE=""
 ENV DB_USER=""
 ENV DB_PASSWORD=""
-
-WORKDIR /app/text-map-api
 
 CMD gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
