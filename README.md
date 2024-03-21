@@ -22,4 +22,11 @@ services:
 ```
 
 ## SetUp Postgres database
+This Porject runs only on Postgres. You can use a dedicated database or integrate the database in your project. If not exeist, the setup will create the tables "chunk" and "savedRoute" and fill it with some example data. You can edit the data later.
+
+### Database diagram
 ![drawSQL-image-export-2024-03-21 (1)](https://github.com/FrissBrot/text-map-api/assets/60073321/23037a58-5a5a-4c8b-b467-1f607bc2f7bf)
+
+## example Data
+
+## Docker Compose example with postres and pgAdmin
