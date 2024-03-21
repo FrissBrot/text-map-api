@@ -20,3 +20,6 @@ services:
       - DB_PASSWORD=*YOUR DB USER PASSWORD*
       - DB_DATABASE=*YOUR DATABASE NAME*
 ```
+
+## SetUp Postgres database
+![drawSQL-image-export-2024-03-21 (1)](https://github.com/FrissBrot/text-map-api/assets/60073321/23037a58-5a5a-4c8b-b467-1f607bc2f7bf)
