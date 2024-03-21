@@ -1,7 +1,0 @@
-version: "3.9"  # version of docker compose
-
-services:
-    api:
-        build:
-          dockerfile: api.Dockerfile
-          context: ./docks
