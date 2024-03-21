@@ -1,0 +1,19 @@
+name: Python-Application
+
+on:
+  push:
+    # Führe die Aktion nur aus, wenn ein Label hinzugefügt wird
+    tags:
+      - '*'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Bild erstellen und Image pushen
+      run: |
+        echo "${{ secrets.DOCKERPW }}" | docker login -u frissbrot --password-stdin
+        docker image build -t frissbrot/test:latest .
+        docker push frissbrot/test:latest
