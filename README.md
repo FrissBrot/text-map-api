@@ -14,8 +14,6 @@ services:
     image: frissbrot/map-api:latest
     ports:
       - "5000:5000"
-    depends_on:
-      - db
     environment:
       - DB_HOST=db
       - DB_USER=*YOUR DB USER*
@@ -55,6 +53,8 @@ services:
     image: frissbrot/map-api:latest
     ports:
       - "5000:5000"
+    depends_on:
+      - db
     environment:
       - DB_HOST=db
       - DB_USER=postgres
