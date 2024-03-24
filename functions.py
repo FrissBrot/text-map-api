@@ -51,12 +51,12 @@ def hash(data_to_hash):
 
 #funktion, um zu überprüfen, ob der path im cache ist
 def get_shortest_path(start, target, grid, walkable_fields, boundaries):
-    path = db_get_shortest_path(start, target)
-    if path:
-        return path
+    respose = db_get_shortest_path(start, target)
+    if respose:
+        return respose
     else: 
-        path = calculate_shortest_path(start, target, grid, walkable_fields, boundaries)
-        return path
+        path, costs = calculate_shortest_path(start, target, grid, walkable_fields, boundaries)
+        return path, costs
 
 # Funktion zum Auffinden des kürzesten Pfads zwischen zwei Punkten auf einem Raster
 def calculate_shortest_path(start, target, grid, walkable_fields, boundaries):
@@ -83,6 +83,7 @@ def calculate_shortest_path(start, target, grid, walkable_fields, boundaries):
                 current = came_from[current]
             path.append(start)
             path.reverse()
+            db_save_path(start, target, path, total_cost)
             return path, total_cost
 
         closed_set.add(current)
